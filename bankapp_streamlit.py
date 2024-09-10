@@ -1,7 +1,7 @@
 import streamlit as st
 import math
 
-# Initialize session state for storing accounts and login status
+# Initialize session state for storing accounts, balances, and login status
 if 'accounts' not in st.session_state:
     st.session_state.accounts = {}  # Store accounts in a dictionary
 if 'logged_in' not in st.session_state:
@@ -28,16 +28,25 @@ def login(username, pin):
         st.session_state.logged_in = True
         st.session_state.current_user = username
         st.success(f"Login successful! Welcome, {username}.")
-        return True
+        st.experimental_rerun()  # Rerun the app to reflect login status
     else:
         st.error("Invalid username or PIN.")
         return False
+
+# Forgot PIN function
+def forgot_pin(username, new_pin):
+    if username in st.session_state.accounts:
+        st.session_state.accounts[username] = new_pin  # Update the PIN
+        st.success(f"PIN for {username} reset successfully!")
+    else:
+        st.error("Username not found.")
 
 # Logout function
 def logout():
     st.session_state.logged_in = False
     st.session_state.current_user = None
     st.info("You have been logged out.")
+    st.experimental_rerun()  # Rerun the app to go back to login screen
 
 # Deposit function
 def deposit(username, amount):
@@ -59,8 +68,8 @@ st.title("Online Banking App")
 
 # Check if user is logged in
 if not st.session_state.logged_in:
-    # Sign in or log in
-    menu = ["Sign In", "Log In"]
+    # Sign in, log in, or reset PIN
+    menu = ["Sign In", "Log In", "Forgot PIN"]
     choice = st.sidebar.selectbox("Menu", menu)
 
     if choice == "Sign In":
@@ -81,6 +90,17 @@ if not st.session_state.logged_in:
 
         if st.button("Log In"):
             login(username, pin)
+
+    elif choice == "Forgot PIN":
+        st.subheader("Reset Your PIN")
+        username = st.text_input("Enter your username")
+        new_pin = st.text_input("Enter a new 6-digit PIN", type="password")
+
+        if st.button("Reset PIN"):
+            if len(new_pin) == 6:
+                forgot_pin(username, new_pin)
+            else:
+                st.error("PIN must be 6 digits.")
 
 else:
     # If logged in, show actions and a Logout button
@@ -110,4 +130,3 @@ else:
     elif action == "Exit":
         st.write("Thank you for using the app!")
         st.stop()  # This will stop the app entirely
-
