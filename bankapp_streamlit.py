@@ -19,7 +19,7 @@ def create_account(username, pin):
     else:
         st.session_state.accounts[username] = pin
         st.session_state.balances[username] = 0  # Initialize balance to 0
-        st.success(f"Account for {username} created successfully! Please Login from the menu")
+        st.success(f"Account for {username} created successfully!")
         return True
 
 # Function to verify login
@@ -80,7 +80,7 @@ if not st.session_state.logged_in:
     if st.button("Create Account"):
         if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
             create_account(new_username, new_pin)
-            st.success('Account successfully created, please log in from the menu.')
+            st.success('Please log in from the menu.')
         else:
             st.error("PIN must be 6 digits and numeric.")
 
