@@ -1,57 +1,64 @@
 import streamlit as st
 import math
 
-# Initialize account information (we'll simulate a database with a simple dictionary)
-accounts = {}
+# Initialize session state for storing accounts and login status
+if 'accounts' not in st.session_state:
+    st.session_state.accounts = {}  # Store accounts in a dictionary
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False  # Track login status
+if 'current_user' not in st.session_state:
+    st.session_state.current_user = None  # Track the current logged-in user
+if 'balances' not in st.session_state:
+    st.session_state.balances = {}  # Store balances for each user
 
-# Create account function
+# Function to create an account
 def create_account(username, pin):
-    accounts[username] = {'pin': pin, 'balance': 0}
-    st.success(f"Account created for {username}!")
+    if username in st.session_state.accounts:
+        st.error("Username already exists. Please choose another one.")
+        return False
+    else:
+        st.session_state.accounts[username] = pin
+        st.session_state.balances[username] = 0  # Initialize balance to 0
+        st.success(f"Account for {username} created successfully!")
+        return True
 
-# Login function
+# Function to verify login
 def login(username, pin):
-    if username in accounts and accounts[username]['pin'] == pin:
-        st.session_state['logged_in'] = True
-        st.session_state['username'] = username
-        st.success(f"Login successful for {username}!")
+    if username in st.session_state.accounts and st.session_state.accounts[username] == pin:
+        st.session_state.logged_in = True
+        st.session_state.current_user = username
+        st.success(f"Login successful! Welcome, {username}.")
         return True
     else:
-        st.error("Invalid username or pin")
+        st.error("Invalid username or PIN.")
         return False
 
 # Logout function
 def logout():
-    st.session_state['logged_in'] = False
-    st.session_state['username'] = None
+    st.session_state.logged_in = False
+    st.session_state.current_user = None
     st.info("You have been logged out.")
 
 # Deposit function
 def deposit(username, amount):
-    accounts[username]['balance'] += amount
-    st.success(f"{amount} deposited! New balance: {accounts[username]['balance']}")
+    st.session_state.balances[username] += amount
+    st.success(f"{amount} deposited! New balance: {st.session_state.balances[username]}")
 
 # Check balance function
 def check_balance(username):
-    current_balance = accounts[username]['balance']
+    current_balance = st.session_state.balances[username]
     st.info(f"Your current balance is {current_balance}.")
 
 # Compound interest calculator
 def calculate_compound_interest(p, r, t):
     a = p * math.exp(r * t)
-    st.info(f"The future value is: {a}")
-
-# Initialize session state for login if not present
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
-if 'username' not in st.session_state:
-    st.session_state['username'] = None
+    st.info(f"The future value is: {a:.2f}")
 
 # Streamlit UI
 st.title("Online Banking App")
 
 # Check if user is logged in
-if not st.session_state['logged_in']:
+if not st.session_state.logged_in:
     # Sign in or log in
     menu = ["Sign In", "Log In"]
     choice = st.sidebar.selectbox("Menu", menu)
@@ -65,7 +72,7 @@ if not st.session_state['logged_in']:
             if len(new_pin) == 6:
                 create_account(new_username, new_pin)
             else:
-                st.error("PIN must be 6 digits")
+                st.error("PIN must be 6 digits.")
 
     elif choice == "Log In":
         st.subheader("Log In to Your Account")
@@ -77,18 +84,18 @@ if not st.session_state['logged_in']:
 
 else:
     # If logged in, show actions and a Logout button
-    st.subheader(f"Welcome, {st.session_state['username']}")
+    st.subheader(f"Welcome, {st.session_state.current_user}")
 
     action = st.selectbox("Choose an action", ["Deposit", "Check Balance", "Calculate Interest", "Logout", "Exit"])
-    
+
     if action == "Deposit":
-        amount = st.number_input("Enter deposit amount", min_value=0)
+        amount = st.number_input("Enter deposit amount", min_value=0.0)
         if st.button("Deposit"):
-            deposit(st.session_state['username'], amount)
-    
+            deposit(st.session_state.current_user, amount)
+
     elif action == "Check Balance":
-        check_balance(st.session_state['username'])
-    
+        check_balance(st.session_state.current_user)
+
     elif action == "Calculate Interest":
         principal = st.number_input("Enter initial amount", min_value=0.0)
         rate = st.number_input("Enter interest rate (e.g., 0.05 for 5%)", min_value=0.0, max_value=1.0)
@@ -96,10 +103,11 @@ else:
         
         if st.button("Calculate Interest"):
             calculate_compound_interest(principal, rate, time)
-    
+
     elif action == "Logout":
         logout()
 
     elif action == "Exit":
         st.write("Thank you for using the app!")
         st.stop()  # This will stop the app entirely
+
