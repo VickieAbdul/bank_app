@@ -28,7 +28,7 @@ def login(username, pin):
         st.session_state.logged_in = True
         st.session_state.current_user = username
         st.success(f"Login successful! Welcome, {username}.")
-        st.experimental_set_query_params()  # This will reset the query params and refresh the page
+        st.query_params()  # This will reset the query params and refresh the page
     else:
         st.error("Invalid username or PIN.")
         return False
@@ -47,7 +47,7 @@ def logout():
     st.session_state.current_user = None
     st.info("You have been logged out.")
     st.write("Redirecting to login page...")
-    st.experimental_set_query_params()  # This will reset the query params and refresh the page
+    st.query_params()  # This will reset the query params and refresh the page
 
 # Deposit function
 def deposit(username, amount):
