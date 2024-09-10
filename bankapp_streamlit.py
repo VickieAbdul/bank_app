@@ -77,11 +77,12 @@ if not st.session_state.logged_in:
         new_username = st.text_input("Enter a username")
         new_pin = st.text_input("Create a 6-digit PIN", type="password")
 
-        if st.button("Create Account"):
-            if len(new_pin) == 6:
-                create_account(new_username, new_pin)
-            else:
-                st.error("PIN must be 6 digits.")
+    if st.button("Create Account"):
+        if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
+            create_account(new_username, new_pin)
+            st.success('Account successfully created, please log in from the menu.')
+    else:
+        st.error("PIN must be 6 digits and numeric.")
 
     elif choice == "Log In":
         st.subheader("Log In to Your Account")
@@ -97,10 +98,11 @@ if not st.session_state.logged_in:
         new_pin = st.text_input("Enter a new 6-digit PIN", type="password")
 
         if st.button("Reset PIN"):
-            if len(new_pin) == 6:
+            if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
                 forgot_pin(username, new_pin)
-            else:
-                st.error("PIN must be 6 digits.")
+                st.success('PIN reset successful, please log in.')
+        else:
+            st.error("PIN must be 6 digits and numeric.")
 
 else:
     # If logged in, show actions and a Logout button
