@@ -81,8 +81,8 @@ if not st.session_state.logged_in:
         if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
             create_account(new_username, new_pin)
             st.success('Account successfully created, please log in from the menu.')
-    else:
-        st.error("PIN must be 6 digits and numeric.")
+        else:
+            st.error("PIN must be 6 digits and numeric.")
 
     elif choice == "Log In":
         st.subheader("Log In to Your Account")
