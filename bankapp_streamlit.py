@@ -93,7 +93,7 @@ if not st.session_state.logged_in:
                 if create_account(new_username, new_pin):
                     st.success('Please log in from the menu.')
             else:
-                st.text_input('Please ensure the length of your pin is 6 and in numerics')
+                st.error('Please ensure the length of your pin is 6 and in numerics')
 
     elif choice == "Log In":
         st.subheader("Log In to Your Account")
