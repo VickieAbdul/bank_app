@@ -32,6 +32,7 @@ def login(username, pin):
         st.session_state.logged_in = True
         st.session_state.current_user = username
         st.success(f"Login successful! Welcome, {username}.")
+        st.experimental_rerun()  # Force rerun
     else:
         st.error("Invalid username or PIN.")
         return False
