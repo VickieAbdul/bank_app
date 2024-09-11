@@ -1,6 +1,9 @@
 import streamlit as st
 import math
 
+# Initialize session state
+st.session_state.force_rerun = False
+
 # Initialize session state for storing accounts, balances, and login status
 if 'accounts' not in st.session_state:
     st.session_state.accounts = {}  # Store accounts in a dictionary
