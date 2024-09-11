@@ -36,7 +36,6 @@ def login(username, pin):
         st.session_state.current_user = username
         st.success(f"Login successful! Welcome, {username}.")
         st.session_state.force_rerun = True  # Trigger a rerun
-        st.experimental_set_query_params(page='actions')  # Redirect to actions page
     else:
         st.error("Invalid username or PIN.")
         return False
@@ -47,6 +46,7 @@ def forgot_pin(username, new_pin):
         st.session_state.accounts[username] = new_pin
         st.success(f"PIN for {username} reset successfully!")
         login(username, pin)
+        st.session_state.force_rerun = True
     else:
         st.error("Username not found.")
 
@@ -56,6 +56,7 @@ def logout():
     st.session_state.current_user = None
     st.info("You have been logged out.")
     st.write("Redirecting to login page...")
+    st.session_state.force_rerun = True
     
 # Deposit function
 def deposit(username, amount):
@@ -153,9 +154,9 @@ else:
             calculate_compound_interest(principal, rate, time)
 
     elif action == "Logout":
+        st.button('Logout')
         logout()
-        if st.button("Calculate Interest"):
-            calculate_compound_interest(principal, rate, time)
+        
 
     elif action == "Logout":
         logout()
