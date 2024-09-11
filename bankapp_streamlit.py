@@ -1,98 +1,57 @@
 import streamlit as st
-import math
 
-# Initialize session state
-st.session_state.force_rerun = False
-
-# Initialize session state for storing accounts, balances, and login status
+# Initialize session state for accounts and login status
 if 'accounts' not in st.session_state:
     st.session_state.accounts = {}  # Store accounts in a dictionary
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False  # Track login status
 if 'current_user' not in st.session_state:
     st.session_state.current_user = None  # Track the current logged-in user
-if 'balances' not in st.session_state:
-    st.session_state.balances = {}  # Store balances for each user
 
-# Let's define all functions needed for the app
 # Function to create an account
 def create_account(username, pin):
     if username in st.session_state.accounts:
-        st.error("Username already exists. Please choose another one.")
-        return False
-    elif not pin.isdigit():
-        st.error("PIN must be numeric.")
-        return False
+        return False  # Username already exists
     else:
-        st.session_state.accounts[username] = pin
-        st.session_state.balances[username] = 0
-        st.success(f"Account for {username} created successfully!")
+        st.session_state.accounts[username] = {'pin': pin, 'balance': 0}
         return True
-        
+
 # Function to verify login
 def login(username, pin):
-    if username in st.session_state.accounts and st.session_state.accounts[username] == pin:
+    if username in st.session_state.accounts and st.session_state.accounts[username]['pin'] == pin:
         st.session_state.logged_in = True
         st.session_state.current_user = username
-        st.success(f"Login successful! Welcome, {username}.")
-        st.session_state.force_rerun = True  # Trigger a rerun
+        return True
     else:
-        st.error("Invalid username or PIN.")
         return False
 
-# Forgot PIN function
-def forgot_pin(username, new_pin):
+# Function to reset PIN
+def reset_pin(username, new_pin):
     if username in st.session_state.accounts:
-        st.session_state.accounts[username] = new_pin
-        st.success(f"PIN for {username} reset successfully!")
-        login(username, pin)
-        st.session_state.force_rerun = True
+        st.session_state.accounts[username]['pin'] = new_pin
+        return True
     else:
-        st.error("Username not found.")
+        return False
 
 # Logout function
 def logout():
     st.session_state.logged_in = False
     st.session_state.current_user = None
-    st.info("You have been logged out.")
-    st.write("Redirecting to login page...")
-    st.session_state.force_rerun = True
-    
-# Deposit function
-def deposit(username, amount):
-    st.session_state.balances[username] += amount
-    st.success(f"{amount} deposited! New balance: {st.session_state.balances[username]}")
+    st.session_state.force_rerun = True  # Trigger a rerun after logout
+    st.experimental_rerun()
 
-# Withdrawal function
-def withdrawal(username, amount):
-    if st.session_state.balances[username] >= amount:
-        st.session_state.balances[username] -= amount
-        st.success(f"{amount} withdrawn! New balance: {st.session_state.balances[username]}")
-    else:
-        st.error("Insufficient funds.")
-
-# Check balance function
-def check_balance(username):
-    current_balance = st.session_state.balances[username]
-    st.info(f"Your current balance is {current_balance}.")
-
-# Compound interest calculator
-def calculate_compound_interest(p, r, t):
-    a = p * math.exp(r * t)
-    st.info(f"The future value is: {a:.2f}")
-
-
-#  Creating the Streamlit UI 
+# Streamlit UI
 st.title("Online Banking App")
 
-if st.session_state.force_rerun:
+# Check if rerun is needed (for example, after logout)
+if 'force_rerun' in st.session_state and st.session_state.force_rerun:
     st.session_state.force_rerun = False
     st.experimental_rerun()
 
 # Check if user is logged in
 if not st.session_state.logged_in:
     # Sign in, log in, or reset PIN
-    menu = ["Sign In", "Log In", "Forgot PIN"]
+    menu = ["Sign In", "Log In", "Reset PIN"]
     choice = st.sidebar.selectbox("Menu", menu)
 
     if choice == "Sign In":
@@ -101,11 +60,13 @@ if not st.session_state.logged_in:
         new_pin = st.text_input("Create a 6-digit PIN", type="password")
 
         if st.button("Create Account"):
-            if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
+            if new_pin.isdigit() and len(new_pin) == 6:
                 if create_account(new_username, new_pin):
-                    st.success('Please log in from the menu.')                   
+                    st.success('Account successfully created! Please log in.')
+                else:
+                    st.error('Username already exists. Try a different one.')
             else:
-                st.error('Please ensure the length of your pin is 6 and in numerics')
+                st.error("PIN must be 6 digits and numeric")
 
     elif choice == "Log In":
         st.subheader("Log In to Your Account")
@@ -113,49 +74,54 @@ if not st.session_state.logged_in:
         pin = st.text_input("6-digit PIN", type="password")
 
         if st.button("Log In"):
-            login(username, pin)
+            if login(username, pin):
+                st.success(f"Welcome, {username}")
+            else:
+                st.error("Incorrect username or PIN")
 
-    elif choice == "Forgot PIN":
+    elif choice == "Reset PIN":
         st.subheader("Reset Your PIN")
-        username = st.text_input("Enter your username")
-        new_pin = st.text_input("Enter a new 6-digit PIN", type="password")
+        username = st.text_input("Username")
+        new_pin = st.text_input("Enter new 6-digit PIN", type="password")
 
         if st.button("Reset PIN"):
-            if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
-                forgot_pin(username, new_pin)
-                st.success('PIN reset successful, please log in.')
-                login(usename, pin)
+            if new_pin.isdigit() and len(new_pin) == 6:
+                if reset_pin(username, new_pin):
+                    st.success("PIN successfully reset! Please log in.")
+                else:
+                    st.error("Username does not exist. Please create an account first.")
+            else:
+                st.error("PIN must be 6 digits and numeric")
 
 else:
-    # If logged in, show actions and a Logout button
+    # If logged in, show the dashboard and a Logout button at the bottom
     st.subheader(f"Welcome, {st.session_state.current_user}")
-    st.button('Logout')
 
-    action = st.selectbox("Choose an action", ["Deposit", "Withdrawal", "Check Balance", "Calculate Interest", "Logout"])
-
+    # Dashboard actions (Deposit, Check Balance, etc.)
+    action = st.selectbox("Choose an action", ["Deposit", "Check Balance", "Logout", "Exit"])
+    
     if action == "Deposit":
-        amount = st.number_input("Enter deposit amount", min_value=0.0)
+        amount = st.number_input("Enter deposit amount", min_value=0)
         if st.button("Deposit"):
-            deposit(st.session_state.current_user, amount)
-
-    elif action == "Withdrawal":
-        amount = st.number_input("Enter withdrawal amount", min_value=0.0)
-        if st.button("Withdraw"):
-            withdrawal(st.session_state.current_user, amount)
-
+            st.session_state.accounts[st.session_state.current_user]['balance'] += amount
+            st.success(f"{amount} deposited! New balance: {st.session_state.accounts[st.session_state.current_user]['balance']}")
+    
     elif action == "Check Balance":
-        check_balance(st.session_state.current_user)
-
-    elif action == "Calculate Interest":
-        principal = st.number_input("Enter initial amount", min_value=0.0)
-        rate = st.number_input("Enter interest rate (e.g., 0.05 for 5%)", min_value=0.0, max_value=1.0)
-        time = st.number_input("Enter the number of years", min_value=0)
-
-        if st.button("Calculate Interest"):
-            calculate_compound_interest(principal, rate, time)
-
+        current_balance = st.session_state.accounts[st.session_state.current_user]['balance']
+        st.info(f"Your current balance is {current_balance}.")
+    
     elif action == "Logout":
-        st.button('Logout')
-        logout()
-        
+        st.write("")  # Optional spacing
+        st.button("Logout", on_click=logout)
 
+    # Place the Logout button at the bottom
+    st.write(" ")  # Adds a blank space to push the button down
+    st.write(" ")  # Adds a blank space to push the button down
+    st.write(" ")  # Adds a blank space to push the button down
+    st.write(" ")  # Adds a blank space to push the button down
+    if st.button("Logout", key='bottom_logout'):
+        logout()
+    
+    elif action == "Exit":
+        st.write("Thank you for using the app!")
+        st.stop()  # This will stop the app entirely
