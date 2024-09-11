@@ -51,6 +51,7 @@ def logout():
     st.session_state.current_user = None
     st.info("You have been logged out.")
     st.write("Redirecting to login page...")
+    st.experimental_rerun()  # Force rerun
 
 # Deposit function
 def deposit(username, amount):
