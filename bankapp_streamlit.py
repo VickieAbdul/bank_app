@@ -113,7 +113,7 @@ else:
     st.subheader(f"Welcome, {st.session_state.current_user}")
 
     # Dashboard actions (Deposit, Withdraw, Check Balance, Calculate Interest, etc.)
-    action = st.selectbox("Choose an action", ["Deposit", "Withdraw", "Check Balance", "Calculate Interest", "Exit"])
+    action = st.selectbox("Choose an action", ["Deposit", "Withdraw", "Check Balance", "Calculate Interest"])
     
     if action == "Deposit":
         amount = st.number_input("Enter deposit amount", min_value=0)
