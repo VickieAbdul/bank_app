@@ -11,14 +11,18 @@ if 'current_user' not in st.session_state:
 if 'balances' not in st.session_state:
     st.session_state.balances = {}  # Store balances for each user
 
+# Let's define all functions needed for the app
 # Function to create an account
 def create_account(username, pin):
     if username in st.session_state.accounts:
         st.error("Username already exists. Please choose another one.")
         return False
+    elif not pin.isdigit():
+        st.error("PIN must be numeric.")
+        return False
     else:
         st.session_state.accounts[username] = pin
-        st.session_state.balances[username] = 0  # Initialize balance to 0
+        st.session_state.balances[username] = 0
         st.success(f"Account for {username} created successfully!")
         return True
 
@@ -70,7 +74,7 @@ def calculate_compound_interest(p, r, t):
     a = p * math.exp(r * t)
     st.info(f"The future value is: {a:.2f}")
 
-# Streamlit UI
+#  Creating the Streamlit UI 
 st.title("Online Banking App")
 
 # Check if user is logged in
