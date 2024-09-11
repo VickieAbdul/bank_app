@@ -1,13 +1,17 @@
+# Import the required libraries
 import streamlit as st
 import math
 
 # Initialize session state for accounts and login status
+# The codes below will help us manage users' details and their login status
 if 'accounts' not in st.session_state:
     st.session_state.accounts = {}  # Store accounts in a dictionary
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False  # Track login status
 if 'current_user' not in st.session_state:
     st.session_state.current_user = None  # Track the current logged-in user
+
+# Next we need to create all the required functions needed
 
 # Function to create an account
 def create_account(username, pin):
@@ -39,12 +43,12 @@ def logout():
     st.session_state.logged_in = False
     st.session_state.current_user = None
 
-# Function to deposit money
+# Function for deposit
 def deposit(username, amount):
     st.session_state.accounts[username]['balance'] += amount
     return st.session_state.accounts[username]['balance']
 
-# Function to withdraw money
+# Function for withdrawal
 def withdraw(username, amount):
     if st.session_state.accounts[username]['balance'] >= amount:
         st.session_state.accounts[username]['balance'] -= amount
@@ -52,9 +56,11 @@ def withdraw(username, amount):
     else:
         return False  # Insufficient balance
 
-# Compound interest calculator
+# Function for Compound interest calculator
 def calculate_compound_interest(principal, rate, time):
     return principal * math.exp(rate * time)
+
+# This section takes care of the UI
 
 # Streamlit UI
 st.title("Online Banking App")
@@ -146,7 +152,7 @@ else:
         if st.button("Logout"):
             logout()
     
-    # Place the Logout button at the bottom
+    # Let's place the Logout button at the bottom
     st.write(" ")  # Adds a blank space to push the button down
     st.write(" ")  # Adds a blank space to push the button down
     st.write(" ")  # Adds a blank space to push the button down
