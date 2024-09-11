@@ -129,8 +129,9 @@ if not st.session_state.logged_in:
 else:
     # If logged in, show actions and a Logout button
     st.subheader(f"Welcome, {st.session_state.current_user}")
+    st.button('Logout')
 
-    action = st.selectbox("Choose an action", ["Deposit", "Withdrawal", "Check Balance", "Calculate Interest", "Logout", "Exit"])
+    action = st.selectbox("Choose an action", ["Deposit", "Withdrawal", "Check Balance", "Calculate Interest", "Logout"])
 
     if action == "Deposit":
         amount = st.number_input("Enter deposit amount", min_value=0.0)
@@ -158,5 +159,3 @@ else:
         logout()
         
 
-    elif action == "Logout":
-        logout()
