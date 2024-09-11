@@ -32,7 +32,7 @@ def login(username, pin):
         st.session_state.logged_in = True
         st.session_state.current_user = username
         st.success(f"Login successful! Welcome, {username}.")
-        st.experimental_rerun()  # Force rerun
+        st.session_state.force_rerun = True  # Trigger a rerun
     else:
         st.error("Invalid username or PIN.")
         return False
@@ -42,6 +42,7 @@ def forgot_pin(username, new_pin):
     if username in st.session_state.accounts:
         st.session_state.accounts[username] = new_pin
         st.success(f"PIN for {username} reset successfully!")
+        st.session_state.force_rerun = True  # Trigger a rerun
     else:
         st.error("Username not found.")
 
@@ -51,7 +52,7 @@ def logout():
     st.session_state.current_user = None
     st.info("You have been logged out.")
     st.write("Redirecting to login page...")
-    st.experimental_rerun()  # Force rerun
+    st.session_state.force_rerun = True  # Trigger a rerun
 
 # Deposit function
 def deposit(username, amount):
@@ -75,6 +76,12 @@ def check_balance(username):
 def calculate_compound_interest(p, r, t):
     a = p * math.exp(r * t)
     st.info(f"The future value is: {a:.2f}")
+
+# Main app
+if __name__ == '__main__':
+    if st.session_state.force_rerun:
+        st.session_state.force_rerun = False
+        st.experimental_rerun()
 
 #  Creating the Streamlit UI 
 st.title("Online Banking App")
