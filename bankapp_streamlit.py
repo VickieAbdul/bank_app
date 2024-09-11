@@ -27,7 +27,6 @@ def create_account(username, pin):
         st.session_state.accounts[username] = pin
         st.session_state.balances[username] = 0
         st.success(f"Account for {username} created successfully!")
-        login(username, pin)
         return True
         
 # Function to verify login
