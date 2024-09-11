@@ -1,6 +1,5 @@
 import streamlit as st
 import math
-from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initialize session state for storing accounts, balances, and login status
 if 'accounts' not in st.session_state:
@@ -18,23 +17,17 @@ def create_account(username, pin):
         st.error("Username already exists. Please choose another one.")
         return False
     else:
-        hashed_pin = generate_password_hash(pin)
-        st.session_state.accounts[username] = hashed_pin
+        st.session_state.accounts[username] = pin
         st.session_state.balances[username] = 0  # Initialize balance to 0
         st.success(f"Account for {username} created successfully!")
         return True
 
 # Function to verify login
 def login(username, pin):
-    if username in st.session_state.accounts:
-        stored_hash = st.session_state.accounts[username]
-        if check_password_hash(stored_hash, pin):
-            st.session_state.logged_in = True
-            st.session_state.current_user = username
-            st.success(f"Login successful! Welcome, {username}.")
-        else:
-            st.error("Invalid username or PIN.")
-            return False
+    if username in st.session_state.accounts and st.session_state.accounts[username] == pin:
+        st.session_state.logged_in = True
+        st.session_state.current_user = username
+        st.success(f"Login successful! Welcome, {username}.")
     else:
         st.error("Invalid username or PIN.")
         return False
@@ -42,8 +35,7 @@ def login(username, pin):
 # Forgot PIN function
 def forgot_pin(username, new_pin):
     if username in st.session_state.accounts:
-        hashed_new_pin = generate_password_hash(new_pin)
-        st.session_state.accounts[username] = hashed_new_pin
+        st.session_state.accounts[username] = new_pin
         st.success(f"PIN for {username} reset successfully!")
     else:
         st.error("Username not found.")
@@ -139,6 +131,11 @@ else:
         rate = st.number_input("Enter interest rate (e.g., 0.05 for 5%)", min_value=0.0, max_value=1.0)
         time = st.number_input("Enter the number of years", min_value=0)
 
+        if st.button("Calculate Interest"):
+            calculate_compound_interest(principal, rate, time)
+
+    elif action == "Logout":
+        logout()
         if st.button("Calculate Interest"):
             calculate_compound_interest(principal, rate, time)
 
