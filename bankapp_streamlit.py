@@ -73,7 +73,7 @@ if not st.session_state.logged_in:
         if st.button("Create Account"):
             if new_pin.isdigit() and len(new_pin) == 6:
                 if create_account(new_username, new_pin):
-                    st.success('Account successfully created! Please log in.')
+                    st.success('Account successfully created! Please log in from the menu.')
                 else:
                     st.error('Username already exists. Try a different one.')
             else:
