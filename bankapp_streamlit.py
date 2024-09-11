@@ -35,7 +35,8 @@ def login(username, pin):
         st.session_state.logged_in = True
         st.session_state.current_user = username
         st.success(f"Login successful! Welcome, {username}.")
-        st.experimental_rerun()
+        st.session_state.force_rerun = True  # Trigger a rerun
+        st.experimental_set_query_params(page='actions')  # Redirect to actions page
     else:
         st.error("Invalid username or PIN.")
         return False
@@ -55,8 +56,7 @@ def logout():
     st.session_state.current_user = None
     st.info("You have been logged out.")
     st.write("Redirecting to login page...")
-    login(username, pin)
-
+    
 # Deposit function
 def deposit(username, amount):
     st.session_state.balances[username] += amount
@@ -83,6 +83,10 @@ def calculate_compound_interest(p, r, t):
 
 #  Creating the Streamlit UI 
 st.title("Online Banking App")
+
+if st.session_state.force_rerun:
+    st.session_state.force_rerun = False
+    st.experimental_rerun()
 
 # Check if user is logged in
 if not st.session_state.logged_in:
