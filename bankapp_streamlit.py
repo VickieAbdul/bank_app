@@ -27,8 +27,9 @@ def create_account(username, pin):
         st.session_state.accounts[username] = pin
         st.session_state.balances[username] = 0
         st.success(f"Account for {username} created successfully!")
+        login()
         return True
-
+        
 # Function to verify login
 def login(username, pin):
     if username in st.session_state.accounts and st.session_state.accounts[username] == pin:
@@ -45,7 +46,7 @@ def forgot_pin(username, new_pin):
     if username in st.session_state.accounts:
         st.session_state.accounts[username] = new_pin
         st.success(f"PIN for {username} reset successfully!")
-        st.session_state.force_rerun = True  # Trigger a rerun
+        login()
     else:
         st.error("Username not found.")
 
@@ -55,7 +56,7 @@ def logout():
     st.session_state.current_user = None
     st.info("You have been logged out.")
     st.write("Redirecting to login page...")
-    st.session_state.force_rerun = True  # Trigger a rerun
+    login()
 
 # Deposit function
 def deposit(username, amount):
@@ -80,11 +81,6 @@ def calculate_compound_interest(p, r, t):
     a = p * math.exp(r * t)
     st.info(f"The future value is: {a:.2f}")
 
-# Main app
-if __name__ == '__main__':
-    if st.session_state.force_rerun:
-        st.session_state.force_rerun = False
-        st.experimental_rerun()
 
 #  Creating the Streamlit UI 
 st.title("Online Banking App")
@@ -103,8 +99,7 @@ if not st.session_state.logged_in:
         if st.button("Create Account"):
             if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
                 if create_account(new_username, new_pin):
-                    st.success('Please log in from the menu.')
-                    st.session_state.force_rerun = True 
+                    st.success('Please log in from the menu.')                   
             else:
                 st.error('Please ensure the length of your pin is 6 and in numerics')
 
@@ -115,7 +110,6 @@ if not st.session_state.logged_in:
 
         if st.button("Log In"):
             login(username, pin)
-            st.session_state.force_rerun = True 
 
     elif choice == "Forgot PIN":
         st.subheader("Reset Your PIN")
