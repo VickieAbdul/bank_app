@@ -27,7 +27,7 @@ def create_account(username, pin):
         st.session_state.accounts[username] = pin
         st.session_state.balances[username] = 0
         st.success(f"Account for {username} created successfully!")
-        login()
+        login(username, pin)
         return True
         
 # Function to verify login
@@ -46,7 +46,7 @@ def forgot_pin(username, new_pin):
     if username in st.session_state.accounts:
         st.session_state.accounts[username] = new_pin
         st.success(f"PIN for {username} reset successfully!")
-        login()
+        login(username, pin)
     else:
         st.error("Username not found.")
 
@@ -56,7 +56,7 @@ def logout():
     st.session_state.current_user = None
     st.info("You have been logged out.")
     st.write("Redirecting to login page...")
-    login()
+    login(username, pin)
 
 # Deposit function
 def deposit(username, amount):
@@ -120,6 +120,7 @@ if not st.session_state.logged_in:
             if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
                 forgot_pin(username, new_pin)
                 st.success('PIN reset successful, please log in.')
+                login(usename, pin)
 
 else:
     # If logged in, show actions and a Logout button
