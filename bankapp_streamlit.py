@@ -104,6 +104,7 @@ if not st.session_state.logged_in:
             if len(new_pin) == 6 and new_pin.isdigit():  # Check that PIN is 6 digits and numeric
                 if create_account(new_username, new_pin):
                     st.success('Please log in from the menu.')
+                    st.session_state.force_rerun = True 
             else:
                 st.error('Please ensure the length of your pin is 6 and in numerics')
 
@@ -114,6 +115,7 @@ if not st.session_state.logged_in:
 
         if st.button("Log In"):
             login(username, pin)
+            st.session_state.force_rerun = True 
 
     elif choice == "Forgot PIN":
         st.subheader("Reset Your PIN")
