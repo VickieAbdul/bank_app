@@ -1,5 +1,5 @@
 # Online Banking App
-The Online Banking App prototype and is designed to simulate basic banking operations for users, 
+The Online Banking App is a prototype that I designed to simulate basic banking operations for users, 
 including account creation, deposits, withdrawals, balance checks, PIN reset, and compound interest calculations.
 
 #### Features:
